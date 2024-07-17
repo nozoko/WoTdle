@@ -38,7 +38,7 @@ function createWotdleSessionStateStore() {
     const nowEst = CurrentTimeAsEST();
     const lastPlayedGame = previousGames[previousGames.length - 1];
 
-    let tankListNotGuessed = data.vehicleList;
+    let tankListNotGuessed = data.vehicleList8to10;
     const userWonToday =
       previousGames.length > 0 &&
       datesAreInSameDay(lastPlayedGame.date, nowEst.getTime());
@@ -55,7 +55,7 @@ function createWotdleSessionStateStore() {
       const dailyVehicleGuesses = persistedData.dailyVehicleGuesses;
       const guessedTankIds = new Set<number>();
       dailyVehicleGuesses.forEach((tank) => guessedTankIds.add(tank.tank_id));
-      tankListNotGuessed = data.vehicleList.filter(
+      tankListNotGuessed = data.vehicleList8to10.filter(
         (tank) => !guessedTankIds.has(tank.tank_id)
       );
     } else {

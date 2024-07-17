@@ -21,7 +21,7 @@ const fetchTodaysWotdle = async () => {
       .replaceAll("/", "_");
 
     const [vehicleListSupaRes, tankOfDaySupaRes] = await Promise.all([
-      supabase.from("vehicle_data_v2").select("*").gte("tier", 8),
+      supabase.from("vehicle_data_v2").select("*"), //.gte(8),
       supabase.from("daily_data").select("*").eq("dd_mm_yy", dd_mm_yy),
     ]);
 
@@ -32,6 +32,12 @@ const fetchTodaysWotdle = async () => {
       .map((data) => data.data)
       .flat(1) as Vehicle[];
 
+    const vehicleList8to10 = vehicleListSupaRes.data
+      .filter(obj => {
+        return obj.tier >= 8;
+      }).map((data) => data.data)
+      .flat(1) as Vehicle[];
+
     const tankOfDay = vehicleList.find(
       (x) => x.tank_id === (tankOfDaySupaRes.data[0].normal as Vehicle).tank_id
     );
@@ -39,7 +45,7 @@ const fetchTodaysWotdle = async () => {
     if (tankOfDay === undefined)
       throw new Error("Failed to find tank of day in vehicleList");
     return {
-      data: { vehicleList, tankOfDay },
+      data: { vehicleList, vehicleList8to10, tankOfDay },
       error: undefined,
     };
   } catch (error) {

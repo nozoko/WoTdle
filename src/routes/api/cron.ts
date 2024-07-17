@@ -110,6 +110,8 @@ export async function GET({ request }: APIEvent) {
     const index = randomIntFromInterval(0, processedVehicles[tier].length - 1);
     const tankOfDay = processedVehicles[tier][index];
 
+    return Response.json({ data: processedVehicles }, { status: 200 });
+
     const supabaseClient = createClient<Database>(
       env.SUPABASE_URL,
       env.SUPABASE_SERVICE_ROLE_KEY
