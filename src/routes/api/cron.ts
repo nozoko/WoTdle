@@ -146,7 +146,13 @@ export async function GET({ request }: APIEvent) {
 
     const tier = randomIntFromInterval(8, 10);
     const index = randomIntFromInterval(0, processedVehicles[tier].length - 1);
+    const hardtier = randomIntFromInterval(1, 10);
+    const hardindex = randomIntFromInterval(
+      0,
+      processedVehicles[tier].length - 1
+    );
     const tankOfDay = processedVehicles[tier][index];
+    const hardtankOfDay = processedVehicles[hardtier][hardindex];
 
     MimicTanks.forEach( ( mimic_list ) => {
       if (mimic_list.includes(tankOfDay.tank_id)) tankOfDay.mimic_list = mimic_list;
@@ -168,9 +174,12 @@ export async function GET({ request }: APIEvent) {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const dd_mm_yy = dateString(tomorrow);
 
-    const updateDaily = supabaseClient
-      .from("daily_data")
-      .insert({ date: tomorrow.toJSON(), normal: tankOfDay, dd_mm_yy });
+    const updateDaily = supabaseClient.from("daily_data").insert({
+      date: tomorrow.toJSON(),
+      normal: tankOfDay,
+      dd_mm_yy,
+      hard: hardtankOfDay,
+    });
 
     const results = await Promise.allSettled([
       updateDaily,
