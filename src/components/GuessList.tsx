@@ -26,7 +26,6 @@ const TankItem: Component<{ tank: Vehicle }> = ({ tank }) => {
   };
 
   const getTankIconColor = () => {
-    console.log(todaysVehicle)
     if (!todaysVehicle) return "bg-zinc-900";
     if (todaysVehicle.tank_id === tank.tank_id) return "bg-correct";
     if (todaysVehicle.mimic_list !== undefined &&
