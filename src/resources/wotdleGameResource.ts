@@ -1,25 +1,43 @@
-import { createRoot } from "solid-js";
+import { createRoot, createResource } from "solid-js";
+import type { ResourceSource } from "solid-js";
 import { createStore } from "solid-js/store";
 import { TodaysWotdleData } from "@/resources/todaysWotdleResource";
 import { CurrentTimeAsEST, datesAreInSameDay } from "@/utils/dateutils";
-import { LATEST_VERSION, usePersistedData } from "./wotdlePersistedDataStore";
+import { LATEST_VERSION, usePersistedData } from "@/stores/wotdlePersistedDataStore";
 import { Vehicle } from "@/types/api.types";
+import { GameType } from "@/types/game.types";
+import { unknown } from "zod";
 
-type GameStateStore =
-  | {
+type GameResource = 
+  {
       todaysVehicle: Vehicle;
       dateMsSinceEpoch: number;
       victory: boolean;
       tankListNotGuessed: Vehicle[];
-      hydrated: true;
-    }
-  | {
-      hydrated: false;
-      todaysVehicle: undefined;
-      dateMsSinceEpoch: undefined;
-      victory: undefined;
-      tankListNotGuessed: undefined;
-    };
+  } |
+  undefined;
+
+export type GameParameters = 
+  {
+    vehicleList: Vehicle[],
+    tankOfDay: Vehicle,
+    gameType: GameType,
+  }
+
+export var parameters = false as ResourceSource<GameParameters>;
+
+async function generateGameResource(parameters: GameParameters, { value, refetching }) {
+  if ( refetching == true ) return;
+
+  const [persistedData, setters] = usePersistedData();
+    const previousGames = persistedData.previousGames;
+
+
+  
+  return undefined as GameResource;
+}
+
+export const [gameResource, {mutate, refetch}] = createResource<GameResource, GameParameters>(parameters, generateGameResource);
 
 function createWotdleSessionStateStore() {
   const [gameState, setGameState] = createStore<GameStateStore>({
