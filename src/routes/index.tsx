@@ -1,30 +1,44 @@
 import GuessForm from "@/components/GuessForm";
 import TankOfDayPanel from "@/components/TankOfDayPanel";
-import { todaysWotdleData, mutate } from "@/resources/todaysWotdleResource";
+import { todaysWotdleData } from "@/resources/todaysWotdleResource";
+import { generateGameResource } from "@/resources/wotdleGameResource";
+import type { GameParameters } from "@/resources/wotdleGameResource";
 import { createAsync } from "@solidjs/router";
-import { Match, Show, Switch, createEffect, createSignal } from "solid-js";
+import { Match, Show, Switch, createEffect, createSignal, createResource } from "solid-js";
+import type { ResourceSource } from "solid-js";
 import gameStateStore from "@/stores/wotdleSessionStateStore";
 import PromptPanel from "@/components/PromptPanel";
 import GuessList from "@/components/GuessList";
+import { GameType } from "@/types/game.types";
 
 export const route = {
   //load: () => getTodaysWotdle(),
 };
 
+var resourceParameters = false as ResourceSource<GameParameters>;
+const [gameResource, {mutate, refetch}] = createResource(resourceParameters, generateGameResource);
+
 export default function Home() {
   const todaysWotdleResource = todaysWotdleData;
+  
   const [loadState, setLoadState] = createSignal<"Loading" | "Ready" | "Error">(
     "Loading"
   );
-  const { hydrate } = gameStateStore;
 
   createEffect(() => {
-    const res = todaysWotdleResource;
-    if (res === undefined) return;
-    else if (res.state === "ready") {
-      setLoadState("Ready");
-      hydrate(res().data);
-    } else if (res.state === "errored") {
+    if (todaysWotdleResource === undefined) return;
+    else if (todaysWotdleResource.state === "ready") {
+      resourceParameters = {
+        vehicleList: todaysWotdleResource().data.vehicleList, 
+        tankOfDay: todaysWotdleResource().data.tankOfDay, 
+        gameType: GameType.Classic
+      } as GameParameters;
+      if (gameResource.state === "ready")
+        setLoadState("Ready");
+      else if (gameResource.state === "errored") {
+        setLoadState("Error")
+      }
+    } else if (todaysWotdleResource.state === "errored") {
       setLoadState("Error");
     }
   }, []);
@@ -42,7 +56,15 @@ export default function Home() {
           </div>
         </Match>
         <Match when={loadState() === "Error"}>
-          <div>Error: {todaysWotdleResource.error?.message}</div>
+          <Switch>
+            <Match when={todaysWotdleResource.state === "errored"}>
+              <div>Error: {todaysWotdleResource.error?.message}</div>
+            </Match>
+            <Match when={gameResource.state === "errored"}>
+              <div>Error: {gameResource.error?.message}</div>
+            </Match>
+          </Switch>
+          
         </Match>
       </Switch>
     </main>
@@ -50,13 +72,15 @@ export default function Home() {
 }
 
 const VictoryPanel = () => {
-  if (!gameStateStore.gameState.hydrated) return;
+  if (gameResource === undefined) return;
+  if (gameResource() === undefined) return;
+  if (gameResource.state !== "ready") return;
   return (
     <Show
-      when={!gameStateStore.gameState.victory}
+      when={!gameResource()!.victory}
       fallback={
         <div class="flex justify-center items-center w-screen p-4">
-          <TankOfDayPanel tank={gameStateStore.gameState.todaysVehicle} />
+          <TankOfDayPanel tank={gameResource()!.todaysVehicle} />
         </div>
       }
     >
