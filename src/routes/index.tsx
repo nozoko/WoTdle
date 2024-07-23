@@ -15,9 +15,6 @@ export const route = {
   //load: () => getTodaysWotdle(),
 };
 
-var resourceParameters = false as ResourceSource<GameParameters>;
-const [gameResource, {mutate, refetch}] = createResource(resourceParameters, generateGameResource);
-
 export default function Home() {
   const todaysWotdleResource = todaysWotdleData;
   
