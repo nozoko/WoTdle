@@ -186,12 +186,13 @@ export async function GET({ request }: APIEvent) {
     return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     if (!error) return;
+
     try {
       await sendDiscordCronErrorNotification(error.toString());
     } catch {
       await sendDiscordCronErrorNotification("unknown error");
     }
-
+    
     return Response.json({ success: false }, { status: 500 });
   }
 }
