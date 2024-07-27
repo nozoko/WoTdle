@@ -1,6 +1,7 @@
 import { createRoot } from "solid-js";
 import { createStore } from "solid-js/store";
 import { TodaysWotdleData } from "@/resources/todaysWotdleResource";
+import { GameType } from "@/types/game.types";
 import { CurrentTimeAsEST, datesAreInSameDay } from "@/utils/dateutils";
 import { LATEST_VERSION, usePersistedData } from "./wotdlePersistedDataStore";
 import { Vehicle } from "@/types/api.types";
@@ -33,7 +34,8 @@ function createWotdleSessionStateStore() {
   const hydrate = (data: TodaysWotdleData["data"]) => {
     if (!data || gameState.hydrated) return;
     const [persistedData, setters] = usePersistedData();
-    const previousGames = persistedData.previousGames;
+    const gameMode = GameType.Classic
+    const previousGames = persistedData[gameMode].previousGames;
 
     const nowEst = CurrentTimeAsEST();
     const lastPlayedGame = previousGames[previousGames.length - 1];
@@ -44,24 +46,19 @@ function createWotdleSessionStateStore() {
       datesAreInSameDay(lastPlayedGame.date, nowEst.getTime());
 
     const userPlayedToday = datesAreInSameDay(
-      persistedData.lastGuessEpochMs,
+      persistedData[gameMode].lastGuessEpochMs,
       nowEst.getTime()
     );
-
-    if (persistedData.version === undefined || persistedData.version === 0) {
-      setters.setState("dailyVehicleGuesses", []);
-      setters.setState("version", LATEST_VERSION);
-    } 
     
     if (userWonToday || userPlayedToday) {
-      const dailyVehicleGuesses = persistedData.dailyVehicleGuesses;
+      const dailyVehicleGuesses = persistedData[gameMode].dailyVehicleGuesses;
       const guessedTankIds = new Set<number>();
       dailyVehicleGuesses.forEach((tank) => guessedTankIds.add(tank.tank_id));
       tankListNotGuessed = data.vehicleList.filter(
         (tank) => !guessedTankIds.has(tank.tank_id)
       );
     } else {
-      setters.setState("dailyVehicleGuesses", []);
+      setters.setModeState(gameMode, "dailyVehicleGuesses", []);
     }
 
     setGameState("todaysVehicle", data.tankOfDay);

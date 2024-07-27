@@ -23,7 +23,7 @@ const PromptPanel = () => {
     <div class="w-full sm:w-[450px] px-4 grid items-center bg-neutral-900 rounded border-neutral-600 border p-4 ">
       <div class="text-xl text-center">{title()}</div>
       <Show
-        when={data.dailyVehicleGuesses.length > 0}
+        when={data["classic"].dailyVehicleGuesses.length > 0}
         fallback={
           <span class="text-center pt-2 font-thin text-neutral-200">
             {m.prompt_content()}

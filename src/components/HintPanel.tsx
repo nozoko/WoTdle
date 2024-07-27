@@ -24,8 +24,8 @@ const HintButton: Component<HintButtonProps> = (props) => {
   const [data] = usePersistedData();
 
   const triesRemaining = () =>
-    props.triesToEnable - data.dailyVehicleGuesses.length;
-  const enabled = () => data.dailyVehicleGuesses.length >= props.triesToEnable;
+    props.triesToEnable - data["classic"].dailyVehicleGuesses.length;
+  const enabled = () => data["classic"].dailyVehicleGuesses.length >= props.triesToEnable;
   const containerClass = () =>
     twMerge(
       "relative flex  items-center flex-col group select-none",

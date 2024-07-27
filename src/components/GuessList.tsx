@@ -28,6 +28,7 @@ const TankItem: Component<{ tank: Vehicle }> = ({ tank }) => {
   const getTankIconColor = () => {
     if (!todaysVehicle) return "bg-zinc-900";
     if (todaysVehicle.tank_id === tank.tank_id) return "bg-correct";
+    console.log(todaysVehicle);
     if (todaysVehicle.mimic_list !== undefined &&
       todaysVehicle.mimic_list.includes(tank.tank_id)) return "bg-partialCorrect";
     return "bg-zinc-900";
@@ -151,7 +152,7 @@ const GuessList: Component = () => {
     languageTag() === "pl" ? "text-sm pt-1.5" : "text-lg"
   );
   return (
-    <Show when={data.dailyVehicleGuesses.length > 0}>
+    <Show when={data["classic"].dailyVehicleGuesses.length > 0}>
       <div class="grid text-center justify-center gap-y-2">
         <div class="grid justify-center grid-cols-5  text-lg text-neutral-200 gap-2 md:w-[600px]">
           <span class="border-b-2 border-neutral-300">
@@ -176,7 +177,7 @@ const GuessList: Component = () => {
             </span>
           </div> */}
         </div>
-        <For each={data.dailyVehicleGuesses}>
+        <For each={data["classic"].dailyVehicleGuesses}>
           {(tank) => <TankItem tank={tank} />}
         </For>
       </div>
